@@ -24,12 +24,12 @@ const db_username = process.env.DB_USERNAME;
 const db_password = process.env.DB_PASSWORD;
 
 const verifyToken = (req, res, next) => {
-  const token = req?.cookies?.note_app;
+  const token = req?.cookies?.ph_b10_a11;
 
   if (!token) {
     return res.status(403).send({ message: "Unauthorized access" });
   } else {
-    jwt.verify(token, process.env.privateKey, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         return res.status(403).send({ message: "Unauthorized access" });
       }
@@ -69,6 +69,11 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
 
+    const database = client.db("ph_b10_a11_db");
+    const lostAndFoundItemCollections = database.collection(
+      "lostAndFoundItemCollections"
+    );
+
     // Auth APIs
     app.post("/jwt", (req, res) => {
       const email = req.body;
@@ -91,6 +96,26 @@ async function run() {
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       });
       res.send({ acknowledgement: true, status: "cookie cleared" });
+    });
+
+    // Add items
+    app.post("/addItems", verifyToken, checkVaildUser, async (req, res) => {
+      const { newItem } = req.body;
+      const { date, ...rest } = newItem;
+      const parsedDate = new Date(date);
+      const truncatedDate = new Date(
+        parsedDate.getFullYear(),
+        parsedDate.getMonth(),
+        parsedDate.getDate()
+      );
+
+      const updatedItem = {
+        ...rest,
+        date: truncatedDate,
+      };
+
+      const result = await lostAndFoundItemCollections.insertOne(updatedItem);
+      res.send(result);
     });
   } finally {
     // Ensures that the client will close when you finish/error
