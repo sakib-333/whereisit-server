@@ -98,6 +98,14 @@ async function run() {
       res.send({ acknowledgement: true, status: "cookie cleared" });
     });
 
+    // Get all items
+    app.get("/allItems", async (req, res) => {
+      const cursor = lostAndFoundItemCollections.find();
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
     // Add items
     app.post("/addItems", verifyToken, checkVaildUser, async (req, res) => {
       const { newItem } = req.body;
