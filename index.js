@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -104,6 +104,16 @@ async function run() {
       const result = await cursor.toArray();
 
       res.send(result);
+    });
+
+    // Get single item
+    app.post("/items/:id", verifyToken, async (req, res) => {
+      const id = req.params;
+      const query = { _id: new ObjectId(id) };
+      const options = {};
+      const item = await lostAndFoundItemCollections.findOne(query, options);
+
+      res.send(item);
     });
 
     // Add items
