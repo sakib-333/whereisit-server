@@ -23,6 +23,31 @@ const port = process.env.PORT || 3000;
 const db_username = process.env.DB_USERNAME;
 const db_password = process.env.DB_PASSWORD;
 
+const verifyToken = (req, res, next) => {
+  const token = req?.cookies?.note_app;
+
+  if (!token) {
+    return res.status(403).send({ message: "Unauthorized access" });
+  } else {
+    jwt.verify(token, process.env.privateKey, (err, decoded) => {
+      if (err) {
+        return res.status(403).send({ message: "Unauthorized access" });
+      }
+      req.decodedEmail = decoded.email;
+      next();
+    });
+  }
+};
+
+const checkVaildUser = (req, res, next) => {
+  const { email } = req.body;
+
+  if (email !== req.decodedEmail) {
+    return res.status(403).send({ message: "Unauthorized access" });
+  }
+  next();
+};
+
 const uri = `mongodb+srv://${db_username}:${db_password}@cluster0.ashqk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
