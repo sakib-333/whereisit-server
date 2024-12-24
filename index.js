@@ -145,6 +145,41 @@ async function run() {
       const result = await lostAndFoundItemCollections.insertOne(updatedItem);
       res.send(result);
     });
+
+    // Update item
+    app.post(
+      "/updateItems/:id",
+      verifyToken,
+      checkVaildUser,
+      async (req, res) => {
+        const { id } = req.params;
+        const { newItem } = req.body;
+        const { date, ...rest } = newItem;
+        const parsedDate = new Date(date);
+        const truncatedDate = new Date(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate()
+        );
+
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedItem = {
+          ...rest,
+          date: truncatedDate,
+        };
+        const updateDoc = {
+          $set: updatedItem,
+        };
+        const result = await lostAndFoundItemCollections.updateOne(
+          filter,
+          updateDoc,
+          options
+        );
+
+        res.send(result);
+      }
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
