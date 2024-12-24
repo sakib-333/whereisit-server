@@ -180,6 +180,20 @@ async function run() {
         res.send(result);
       }
     );
+
+    // Delete item
+    app.post(
+      "/deleteItem/:id",
+      verifyToken,
+      checkVaildUser,
+      async (req, res) => {
+        const { id } = req.params;
+        const query = { _id: new ObjectId(id) };
+        const result = await lostAndFoundItemCollections.deleteOne(query);
+
+        res.send(result);
+      }
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
