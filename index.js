@@ -205,6 +205,21 @@ async function run() {
 
       res.send(result);
     });
+
+    // Search
+    app.post("/search", async (req, res) => {
+      const { key } = req.body;
+      const query = {
+        $or: [
+          { title: { $regex: key, $options: "i" } },
+          { location: { $regex: key, $options: "i" } },
+        ],
+      };
+      const cursor = lostAndFoundItemCollections.find(query);
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
