@@ -194,6 +194,17 @@ async function run() {
         res.send(result);
       }
     );
+
+    // Get latest six items
+    app.post("/latestItems", async (req, res) => {
+      const cursor = lostAndFoundItemCollections
+        .find()
+        .sort({ date: -1 })
+        .limit(6);
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
