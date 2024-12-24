@@ -116,6 +116,16 @@ async function run() {
       res.send(item);
     });
 
+    // Get all of my items
+    app.post("/myItems", verifyToken, checkVaildUser, async (req, res) => {
+      const query = req.body;
+      const options = {};
+      const cursor = lostAndFoundItemCollections.find(query, options);
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
     // Add items
     app.post("/addItems", verifyToken, checkVaildUser, async (req, res) => {
       const { newItem } = req.body;
