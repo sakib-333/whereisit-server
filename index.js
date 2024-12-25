@@ -252,7 +252,7 @@ async function run() {
           { location: { $regex: key, $options: "i" } },
         ],
       };
-      const cursor = lostAndFoundItemCollections.find(query).limit(9);
+      const cursor = lostAndFoundItemCollections.find(query);
       const result = await cursor.toArray();
 
       res.send(result);
