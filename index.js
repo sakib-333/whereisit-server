@@ -257,6 +257,17 @@ async function run() {
 
       res.send(result);
     });
+
+    // My recovered items
+    app.post("/allRecovered", verifyToken, checkVaildUser, async (req, res) => {
+      const { email } = req.body;
+      const query = { recovUserEmail: email };
+      const options = {};
+      const cursor = recoveredCollections.find(query, options);
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
