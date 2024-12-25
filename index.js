@@ -99,9 +99,18 @@ async function run() {
       res.send({ acknowledgement: true, status: "cookie cleared" });
     });
 
+    // Get total data
+    app.get("/totalData", async (req, res) => {
+      const totalData =
+        await lostAndFoundItemCollections.estimatedDocumentCount();
+
+      res.send({ totalData });
+    });
+
     // Get all items
-    app.get("/allItems", async (req, res) => {
-      const cursor = lostAndFoundItemCollections.find();
+    app.post("/allItems", async (req, res) => {
+      const { pgCnt } = req.body;
+      const cursor = lostAndFoundItemCollections.find().skip(pgCnt).limit(9);
       const result = await cursor.toArray();
 
       res.send(result);
@@ -243,7 +252,7 @@ async function run() {
           { location: { $regex: key, $options: "i" } },
         ],
       };
-      const cursor = lostAndFoundItemCollections.find(query);
+      const cursor = lostAndFoundItemCollections.find(query).limit(9);
       const result = await cursor.toArray();
 
       res.send(result);
