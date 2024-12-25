@@ -73,6 +73,7 @@ async function run() {
     const lostAndFoundItemCollections = database.collection(
       "lostAndFoundItemCollections"
     );
+    const recoveredCollections = database.collection("recoveredCollections");
 
     // Auth APIs
     app.post("/jwt", (req, res) => {
@@ -181,6 +182,33 @@ async function run() {
       }
     );
 
+    // Update item status
+    app.post("/updateStatus/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+
+      const item = await lostAndFoundItemCollections.findOne(filter);
+      if (item.status === "not recovered") {
+        const options = { upsert: true };
+        const updateDoc = {
+          $set: { status: "recovered" },
+        };
+        const result = await lostAndFoundItemCollections.updateOne(
+          filter,
+          updateDoc,
+          options
+        );
+        return res.send(result);
+      }
+      res.send({
+        acknowledged: false,
+        modifiedCount: 0,
+        upsertedId: null,
+        upsertedCount: 0,
+        matchedCount: 0,
+      });
+    });
+
     // Delete item
     app.post(
       "/deleteItem/:id",
@@ -217,6 +245,15 @@ async function run() {
       };
       const cursor = lostAndFoundItemCollections.find(query);
       const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
+    // Recovered
+    app.post("/recoveredItems", verifyToken, async (req, res) => {
+      const data = req.body;
+      const doc = data.recoveredItem;
+      const result = await recoveredCollections.insertOne(doc);
 
       res.send(result);
     });
