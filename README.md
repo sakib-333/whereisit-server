@@ -23,7 +23,7 @@ Make sure you have the following installed on your local machine:
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone git@github.com:sakib-333/ph-b10-a11-server.git
+   git clone git@github.com:sakib-333/whereisit-server.git
 
    cd ph-b10-a11-server
    ```
