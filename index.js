@@ -106,7 +106,7 @@ async function run() {
     // Get all items
     app.post("/allItems", async (req, res) => {
       const { pgCnt } = req.body;
-      const cursor = lostAndFoundItemCollections.find().skip(pgCnt).limit(9);
+      const cursor = lostAndFoundItemCollections.find().skip(pgCnt).limit(10);
       const result = await cursor.toArray();
 
       res.send(result);
