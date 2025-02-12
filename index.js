@@ -112,6 +112,45 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/countTotalItems", async (req, res) => {
+      const { itemType, searchKey = "" } = req.query;
+      const query = {
+        $or: [
+          { title: { $regex: searchKey, $options: "i" } },
+          { location: { $regex: searchKey, $options: "i" } },
+        ],
+      };
+
+      if (itemType === "lost" || itemType === "found") {
+        query["postType"] = req.query?.itemType;
+      }
+      const cursor = lostAndFoundItemCollections.find(query, {});
+      const result = await cursor.toArray();
+      res.send({ total: result.length });
+    });
+
+    app.get("/allLostAndFountItems", async (req, res) => {
+      try {
+        const { sortingKey = "", pgCnt = 0, searchKey = "" } = req.query;
+        const query = {
+          $or: [
+            { title: { $regex: searchKey, $options: "i" } },
+            { location: { $regex: searchKey, $options: "i" } },
+          ],
+        };
+        if (sortingKey === "lost" || sortingKey === "found") {
+          query["postType"] = sortingKey;
+        }
+        const cursor = lostAndFoundItemCollections
+          .find(query)
+          .skip(Number(pgCnt * 12))
+          .limit(12);
+        const result = await cursor.toArray();
+        res.send(result);
+      } catch (e) {
+        console.log(e);
+      }
+    });
     // Get single item
     app.post("/items/:id", verifyToken, async (req, res) => {
       const id = req.params;
